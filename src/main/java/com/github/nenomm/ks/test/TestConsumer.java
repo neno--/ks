@@ -11,6 +11,6 @@ public class TestConsumer {
 
     @StreamListener(TestSink.INPUT)
     public void receive(String data) {
-        logger.info("Listening: {}", data);
+        //logger.info("Listening: {}", data);
     }
 }

@@ -49,7 +49,7 @@ public class KafkaStreamProcessorBinding {
                 .toStream()
                 .map((key, value) -> new KeyValue<>(null, new WordCount(key.key(), value, new Date(key.window().start()), new Date(key.window().end()))));*/
 
-        logger.info("Processing"); // this will be displayed once, on app startup.
+        //logger.info("Processing"); // this will be displayed once, on app startup.
 
         KStream<String, String> filteredStream = input.filter((key, value) -> value.contains("A"));
         KStream<String, String> lowercasedStream = filteredStream.mapValues((readOnlyKey, value) -> value.toLowerCase());
@@ -69,8 +69,9 @@ public class KafkaStreamProcessorBinding {
 
     private static ForeachAction<String, String> foreachAction() {
         return (key, value) -> {
-            if (value.contains("bar"))
-                logger.info("There is one bar!");
+            if (value.contains("bar")) {
+                //logger.info("There is one bar!");
+            }
         };
     }
 

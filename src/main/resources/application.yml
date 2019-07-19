@@ -9,6 +9,8 @@ spring:
             default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
             default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
           bindings.input.consumer.application-id: word-count-test-app-id
+          bindings.customInput.consumer.application-id: stream-joiner-test-app-id
+          bindings.anotherCustomInput.consumer.application-id: another-stream-joiner-test-app-id
       bindings:
         input:
           group: wordsInputGroup
@@ -20,5 +22,9 @@ spring:
           destination: wordsTopic
         output1:
           destination: wordsTopic
+        customInput:
+          destination: join-topic-1
+        anotherCustomInput:
+            destination: join-topic-2
 spring.cloud.stream.bindings.input1.binder: kafka
 spring.cloud.stream.bindings.output1.binder: kafka
