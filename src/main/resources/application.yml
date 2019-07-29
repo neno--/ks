@@ -13,6 +13,7 @@ spring:
           bindings.anotherCustomInput.consumer.application-id: another-stream-joiner-test-app-id
           bindings.kTableCustomInput.consumer.application-id: ktable-test-app-id-A
           bindings.wordCounterSink.consumer.application-id: wordcount-test-app-id-A
+          bindings.stockSink.consumer.application-id: stock-test-app-id
       bindings:
         input:
           group: wordsInputGroup
@@ -32,5 +33,7 @@ spring:
           destination: kTable-topic-A
         wordCounterSink:
           destination: wordcount-input
+        stockSink:
+          destination: stock-input
 spring.cloud.stream.bindings.input1.binder: kafka
 spring.cloud.stream.bindings.output1.binder: kafka

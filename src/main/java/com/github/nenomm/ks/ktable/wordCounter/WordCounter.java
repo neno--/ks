@@ -17,7 +17,7 @@ public class WordCounter {
     private static final Logger logger = LoggerFactory.getLogger(WordCounter.class);
 
     //@StreamListener
-    //public void countWords(@Input(WordCounterSink.INPUT) KStream<String, String> words) {
+    //public void countWords(@Input(StockSink.INPUT) KStream<String, String> words) {
 
     @StreamListener(WordCounterSink.INPUT)
     public void countWords(KStream<String, String> words) {
