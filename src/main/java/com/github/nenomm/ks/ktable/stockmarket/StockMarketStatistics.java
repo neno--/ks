@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.context.annotation.Profile;
 
+@Profile("stockMarket")
 @EnableBinding(StockSink.class)
 public class StockMarketStatistics {
     private static final Logger logger = LoggerFactory.getLogger(StockMarketStatistics.class);
@@ -19,7 +21,7 @@ public class StockMarketStatistics {
 
         KGroupedStream grouped = stocks.groupByKey();
 
-        grouped.aggregate(StockInfo::new, (key, value, aggregate) -> )
+        //grouped.aggregate(StockInfo::new, (key, value, aggregate) -> )
 
     }
 }

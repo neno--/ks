@@ -8,16 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+@Profile("wordCount")
 @EnableBinding(WordCounterSink.class)
 public class WordCounter {
     private static final Logger logger = LoggerFactory.getLogger(WordCounter.class);
-
-    //@StreamListener
-    //public void countWords(@Input(StockSink.INPUT) KStream<String, String> words) {
 
     @StreamListener(WordCounterSink.INPUT)
     public void countWords(KStream<String, String> words) {
@@ -28,8 +27,7 @@ public class WordCounter {
         KStream flatten = words.flatMapValues(value ->
                 Arrays.asList(pattern.split(value.toLowerCase())));
 
-        KStream mapped = flatten.map((key, value) -> new KeyValue<Object,
-                Object>(value, value));
+        KStream mapped = flatten.map((key, value) -> new KeyValue<Object, Object>(value, value));
 
         KStream filtered = mapped.filter((key, value) -> (!value.equals("the")));
 

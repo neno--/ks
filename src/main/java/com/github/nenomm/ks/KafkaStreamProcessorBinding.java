@@ -18,11 +18,13 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.cloud.stream.binder.kafka.streams.annotations.KafkaStreamsProcessor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.config.StreamsBuilderFactoryBean;
 import org.springframework.messaging.handler.annotation.SendTo;
 
 import static com.github.nenomm.ks.transformer.SimpleTransformer.STORE_NAME;
 
+@Profile("streamProcessing")
 @EnableBinding(KafkaStreamsProcessor.class)
 public class KafkaStreamProcessorBinding {
     private static final Logger logger = LoggerFactory.getLogger(KafkaStreamProcessorBinding.class);
@@ -40,16 +42,8 @@ public class KafkaStreamProcessorBinding {
     @StreamListener(INPUT_TOPIC)
     @SendTo({OUTPUT_TOPIC})
     public KStream<String, String> process(KStream<String, String> input) throws Exception {
-        /*return input
-                .flatMapValues(value -> Arrays.asList(value.toLowerCase().split("\\W+")))
-                .map((key, value) -> new KeyValue<>(value, value))
-                .groupByKey(Serialized.with(Serdes.String(), Serdes.String()))
-                .windowedBy(TimeWindows.of(WINDOW_SIZE_MS))
-                .count(Materialized.as("WordCounts-1"))
-                .toStream()
-                .map((key, value) -> new KeyValue<>(null, new WordCount(key.key(), value, new Date(key.window().start()), new Date(key.window().end()))));*/
 
-        //logger.info("Processing"); // this will be displayed once, on app startup.
+        logger.info("Processing"); // this will be displayed once, on app startup.
 
         KStream<String, String> filteredStream = input.filter((key, value) -> value.contains("A"));
         KStream<String, String> lowercasedStream = filteredStream.mapValues((readOnlyKey, value) -> value.toLowerCase());
@@ -70,7 +64,7 @@ public class KafkaStreamProcessorBinding {
     private static ForeachAction<String, String> foreachAction() {
         return (key, value) -> {
             if (value.contains("bar")) {
-                //logger.info("There is one bar!");
+                logger.info("There is one bar!");
             }
         };
     }

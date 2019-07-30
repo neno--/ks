@@ -1,6 +1,7 @@
 package com.github.nenomm.ks.test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +10,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@Profile("customProcessorInterface")
 @Component
 public class TestScheduler {
 

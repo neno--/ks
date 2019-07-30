@@ -1,39 +1,5 @@
 spring:
+  profiles:
+    active: stockSink
   kafka:
     bootstrap-servers: blade1:9092
-  cloud:
-    stream:
-      kafka:
-        streams:
-          binder.configuration:
-            default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-            default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
-          bindings.input.consumer.application-id: word-count-test-app-id
-          bindings.customInput.consumer.application-id: stream-joiner-test-app-id
-          bindings.anotherCustomInput.consumer.application-id: another-stream-joiner-test-app-id
-          bindings.kTableCustomInput.consumer.application-id: ktable-test-app-id-A
-          bindings.wordCounterSink.consumer.application-id: wordcount-test-app-id-A
-          bindings.stockSink.consumer.application-id: stock-test-app-id
-      bindings:
-        input:
-          group: wordsInputGroup
-          destination: wordsTopic
-        output:
-          destination: streamOutput
-        input1:
-          group: wordsTestInputGroup
-          destination: wordsTopic
-        output1:
-          destination: wordsTopic
-        customInput:
-          destination: join-topic-1
-        anotherCustomInput:
-          destination: join-topic-2
-        kTableCustomInput:
-          destination: kTable-topic-A
-        wordCounterSink:
-          destination: wordcount-input
-        stockSink:
-          destination: stock-input
-spring.cloud.stream.bindings.input1.binder: kafka
-spring.cloud.stream.bindings.output1.binder: kafka
