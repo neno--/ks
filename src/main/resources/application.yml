@@ -1,5 +1,5 @@
 spring:
   profiles:
-    active: stockSink
+    active: oldApiSimple
   kafka:
     bootstrap-servers: blade1:9092
