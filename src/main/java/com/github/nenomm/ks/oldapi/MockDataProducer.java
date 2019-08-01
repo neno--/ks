@@ -16,7 +16,7 @@ import java.util.TimerTask;
 
 import static com.github.nenomm.ks.oldapi.SimpleExample.STOCK_INFO_SOURCE;
 
-@Profile("oldApiSimple")
+@Profile({"oldApiSimple", "oldApiStateful"})
 @Component
 public class MockDataProducer {
     private static final Logger logger = LoggerFactory.getLogger(MockDataProducer.class);
@@ -51,7 +51,8 @@ public class MockDataProducer {
     }
 
     private void sendToTopic() {
-        ProducerRecord<String, StockInfo> record = new ProducerRecord<>(STOCK_INFO_SOURCE, null, nextRandom());
+        StockInfo stockInfo = nextRandom();
+        ProducerRecord<String, StockInfo> record = new ProducerRecord<>(STOCK_INFO_SOURCE, stockInfo.getSymbol(), stockInfo);
         producer.send(record, callback);
     }
 
