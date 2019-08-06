@@ -3,7 +3,6 @@ package com.github.nenomm.ks.ktable;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +11,12 @@ import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.context.annotation.Profile;
 
-import java.util.Arrays;
-import java.util.regex.Pattern;
+// /opt/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic kTable-topic-D --property "parse.key=true" --property "key.separator=:"
+// /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic kTable-topic-D --property print.key=true --property print.value=true
+// /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic testAggregateOutput --property print.key=true --property print.value=true
+// /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic testAggregateStringOutput --property print.key=true --property print.value=true
+
+// /opt/kafka/bin/kafka-topics.sh --zookeeper localhost:2181 --list | grep -i ktable-test-app-id-D
 
 @Profile("KTable")
 @EnableBinding(KTableCustomInput.class)
@@ -35,7 +38,11 @@ public class KTableStreamsTester {
         KGroupedTable<String, String> shareVolume1 = input.groupBy((k, v) -> new KeyValue<>(k, v), Serialized.with(Serdes.String(), Serdes.String()));
         KTable<String, Long> result = shareVolume1.count();
 
+        // so you can display it in console:
+        KStream<String, String> testAggregateStringOutput = result.toStream().mapValues((readOnlyKey, value) -> Long.toString(value));
 
-        result.toStream().to("testAggregateOutput", Produced.with(Serdes.String(), Serdes.Long()));
+        //result.toStream().to("testAggregateOutput", Produced.with(Serdes.String(), Serdes.Long()));
+        testAggregateStringOutput.to("testAggregateStringOutput");
+
     }
 }
