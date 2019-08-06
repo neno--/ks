@@ -30,6 +30,10 @@ import java.util.Properties;
 
 import static org.apache.kafka.streams.Topology.AutoOffsetReset.LATEST;
 
+// /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic stock-info-source --property print.key=true --property print.value=true
+// /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic STATEFUL_PROC_SINK_TOPIC --property print.key=true --property print.value=true
+// /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic stock-info-appid-stock-performance-store-changelog --property print.key=true --property print.value=true
+
 @Profile("oldApiStateful")
 @Component
 public class StatefulExample {
