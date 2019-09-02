@@ -1,5 +1,6 @@
 spring:
   profiles:
-    active: longRunning
+    #active: longRunning
+    active: longRunningTestProducer
   kafka:
     bootstrap-servers: blade1:9092

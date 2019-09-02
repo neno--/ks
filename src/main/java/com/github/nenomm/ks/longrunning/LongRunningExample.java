@@ -1,6 +1,5 @@
 package com.github.nenomm.ks.longrunning;
 
-import com.github.nenomm.ks.CommonConfigProperties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
@@ -14,7 +13,7 @@ import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -28,8 +27,11 @@ import static org.apache.kafka.streams.Topology.AutoOffsetReset.LATEST;
 public class LongRunningExample {
     private static final Logger logger = LoggerFactory.getLogger(LongRunningExample.class);
 
-    @Autowired
-    private CommonConfigProperties properties;
+    @Value("${spring.cloud.stream.bindings.input.destination}")
+    private String inputTopic;
+
+    @Value("${spring.cloud.stream.bindings.output.destination}")
+    private String outputTopic;
 
     @PostConstruct
     public void main() throws Exception {
@@ -44,12 +46,12 @@ public class LongRunningExample {
                 new UsePreviousTimeOnInvalidTimestamp(),
                 Serdes.String().deserializer(),
                 Serdes.String().deserializer(),
-                properties.getInputTopic());
+                inputTopic);
 
         SlowProcessor slowProcessor = new SlowProcessor(stateStoreName);
         topology.addProcessor("PROCESSOR", () -> slowProcessor, "SOURCE");
         topology.addStateStore(storeBuilder, "PROCESSOR");
-        topology.addSink("SINK", properties.getOutputTopic(), Serdes.String().serializer(), Serdes.String().serializer(), "PROCESSOR");
+        topology.addSink("SINK", outputTopic, Serdes.String().serializer(), Serdes.String().serializer(), "PROCESSOR");
 
         KafkaStreams kafkaStreams = new KafkaStreams(topology, getProperties());
         kafkaStreams.start();
