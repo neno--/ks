@@ -1,5 +1,5 @@
 spring:
   profiles:
-    active: wordCount
+    active: longRunning
   kafka:
     bootstrap-servers: blade1:9092
