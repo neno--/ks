@@ -10,22 +10,23 @@ import org.slf4j.LoggerFactory;
 
 public class SlowPunctuator implements Punctuator {
     private static final Logger logger = LoggerFactory.getLogger(SlowPunctuator.class);
-    private static final int EMISSION_COUNT = 10;
 
     private KeyValueStore<String, String> keyValueStore;
     private ProcessorContext context;
     private int counter = 0;
+    private int forwardingInterval;
 
-    public SlowPunctuator(KeyValueStore<String, String> keyValueStore, ProcessorContext context) {
+    public SlowPunctuator(KeyValueStore<String, String> keyValueStore, ProcessorContext context, int forwardingInterval) {
         this.keyValueStore = keyValueStore;
         this.context = context;
+        this.forwardingInterval = forwardingInterval;
     }
 
     @Override
     public void punctuate(long timestamp) {
         counter++;
 
-        if ((counter % EMISSION_COUNT) == 0) {
+        if ((counter % this.forwardingInterval) == 0) {
             logger.info("Executing punctuator step {} - FORWARDING", counter);
             logger.info("State store has {} items", keyValueStore.approximateNumEntries());
 

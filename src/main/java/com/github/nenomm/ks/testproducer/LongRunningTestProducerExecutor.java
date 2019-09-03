@@ -40,10 +40,28 @@ public class LongRunningTestProducerExecutor {
         schedule();
 
         executor.execute(() -> {
+            boolean displayStatistics = false;
+            int localCounter = 0;
+
             while (running.get()) {
-                if (counter.get() < messagesPerSec) {
+                localCounter = counter.get();
+
+                // all messages could not be sent
+                if ((localCounter == 0) && displayStatistics) {
+                    logger.info("Sent {} out of {} messages", localCounter, messagesPerSec);
+                    displayStatistics = false;
+                }
+
+                if (localCounter < messagesPerSec) {
                     producer.sendToTopic();
                     counter.incrementAndGet();
+                    displayStatistics = true;
+                } else {
+                    // all messages could be sent
+                    if (displayStatistics) {
+                        logger.info("Sent {} out of {} messages", localCounter, messagesPerSec);
+                        displayStatistics = false;
+                    }
                 }
             }
         });
@@ -59,8 +77,9 @@ public class LongRunningTestProducerExecutor {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                logger.info("counter: {}, messagesPerSec: {}", counter.get(), messagesPerSec);
                 counter.set(0);
-                logger.info("Resetting counter to {}", counter.get());
+                //logger.info("Resetting counter to {}", counter.get());
             }
         }, 0, 1000);
     }

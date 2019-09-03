@@ -13,9 +13,11 @@ public class SlowProcessor extends AbstractProcessor<String, String> {
 
     private KeyValueStore<String, String> keyValueStore;
     private String stateStoreName;
+    private int forwardingInterval;
 
-    public SlowProcessor(String stateStoreName) {
+    public SlowProcessor(String stateStoreName, int forwardingInterval) {
         this.stateStoreName = stateStoreName;
+        this.forwardingInterval = forwardingInterval;
     }
 
     @Override
@@ -24,7 +26,7 @@ public class SlowProcessor extends AbstractProcessor<String, String> {
         super.init(context);
         keyValueStore = (KeyValueStore) context().getStateStore(stateStoreName);
 
-        SlowPunctuator punctuator = new SlowPunctuator(keyValueStore, context);
+        SlowPunctuator punctuator = new SlowPunctuator(keyValueStore, context, this.forwardingInterval);
         context.schedule(PUNCTUATOR_INTERVAL, PunctuationType.WALL_CLOCK_TIME, punctuator);
     }
 
@@ -32,8 +34,7 @@ public class SlowProcessor extends AbstractProcessor<String, String> {
     public void process(String key, String value) {
         if (key != null) {
 
-            logger.info("Processor doing some work!");
-
+            //logger.info("Processor doing some work!");
             String oldValue = keyValueStore.get(key);
 
             keyValueStore.put(key, value);

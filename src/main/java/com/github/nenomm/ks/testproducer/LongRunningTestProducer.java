@@ -20,7 +20,6 @@ public class LongRunningTestProducer {
     private KafkaProducer producer;
     private Callback callback;
 
-    private int NUM_OF_KEYS = 1000;
     private Random random = new Random();
 
     private int index = -1;
@@ -28,10 +27,13 @@ public class LongRunningTestProducer {
     @Value("${spring.cloud.stream.bindings.output.destination}")
     private String outputTopic;
 
+    @Value("${app.keyRange:1000}")
+    private int keyRange;
 
-    public void sendToTopic() {
+
+    void sendToTopic() {
         index++;
-        index = index % NUM_OF_KEYS;
+        index = index % keyRange;
 
         String key = Integer.toString(index);
         String value = Integer.toString(random.nextInt());
@@ -40,15 +42,18 @@ public class LongRunningTestProducer {
         producer.send(record, callback);
     }
 
-    public void init() {
+    void init() {
         logger.info("Initializing the producer to outputTopic: {}", outputTopic);
 
         Properties properties = new Properties();
         properties.put("bootstrap.servers", "blade1:9092");
         properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        properties.put("acks", "1");
-        properties.put("retries", "3");
+
+        // exactly once delivery
+        properties.put("acks", "all");
+        properties.put("retries", "1");
+        properties.put("enable.idempotence", true);
 
         producer = new KafkaProducer<>(properties);
 

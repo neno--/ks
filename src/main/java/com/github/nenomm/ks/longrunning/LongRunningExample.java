@@ -33,10 +33,16 @@ public class LongRunningExample {
     @Value("${spring.cloud.stream.bindings.output.destination}")
     private String outputTopic;
 
+    @Value("${app.executionTime:60}")
+    private int executionTime;
+
+    @Value("${app.forwardingInterval:10}")
+    private int forwardingInterval;
+
     @PostConstruct
     public void main() throws Exception {
         String stateStoreName = "STATE_STORE_NAME";
-        KeyValueBytesStoreSupplier storeSupplier = Stores.lruMap(stateStoreName, 100);
+        KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(stateStoreName);
         StoreBuilder<KeyValueStore<String, String>> storeBuilder = Stores.keyValueStoreBuilder(storeSupplier, Serdes.String(), Serdes.String());
 
         Topology topology = new Topology();
@@ -48,7 +54,7 @@ public class LongRunningExample {
                 Serdes.String().deserializer(),
                 inputTopic);
 
-        SlowProcessor slowProcessor = new SlowProcessor(stateStoreName);
+        SlowProcessor slowProcessor = new SlowProcessor(stateStoreName, forwardingInterval);
         topology.addProcessor("PROCESSOR", () -> slowProcessor, "SOURCE");
         topology.addStateStore(storeBuilder, "PROCESSOR");
         topology.addSink("SINK", outputTopic, Serdes.String().serializer(), Serdes.String().serializer(), "PROCESSOR");
@@ -57,9 +63,11 @@ public class LongRunningExample {
         kafkaStreams.start();
         logger.info("inputTopic: {}", inputTopic);
         logger.info("outputTopic: {}", outputTopic);
+        logger.info("executionTime: {}", executionTime);
+        logger.info("forwardingInterval: {}", forwardingInterval);
         logger.info("kstream started");
 
-        Thread.sleep(5 * 60 * 1000);
+        Thread.sleep(executionTime * 1000);
         kafkaStreams.close();
         logger.info("kstream stopped");
         logger.info("Shutting down Long-Running Application  now");
@@ -76,6 +84,9 @@ public class LongRunningExample {
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class);
+
+        // exactly once delivery
+        props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, "exactly_once");
         return props;
     }
 }
