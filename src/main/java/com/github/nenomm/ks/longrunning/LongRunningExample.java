@@ -55,6 +55,8 @@ public class LongRunningExample {
 
         KafkaStreams kafkaStreams = new KafkaStreams(topology, getProperties());
         kafkaStreams.start();
+        logger.info("inputTopic: {}", inputTopic);
+        logger.info("outputTopic: {}", outputTopic);
         logger.info("kstream started");
 
         Thread.sleep(5 * 60 * 1000);

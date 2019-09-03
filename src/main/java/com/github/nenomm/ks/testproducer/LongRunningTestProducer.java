@@ -28,6 +28,7 @@ public class LongRunningTestProducer {
     @Value("${spring.cloud.stream.bindings.output.destination}")
     private String outputTopic;
 
+
     public void sendToTopic() {
         index++;
         index = index % NUM_OF_KEYS;
