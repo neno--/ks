@@ -26,6 +26,7 @@ import static org.apache.kafka.streams.Topology.AutoOffsetReset.LATEST;
 @Component
 public class LongRunningExample {
     private static final Logger logger = LoggerFactory.getLogger(LongRunningExample.class);
+    private static final String UNIQUE_ID_PREFIX = "slow-test-processor";
 
     @Value("${spring.cloud.stream.bindings.input.destination}")
     private String inputTopic;
@@ -38,6 +39,9 @@ public class LongRunningExample {
 
     @Value("${app.forwardingInterval:10}")
     private int forwardingInterval;
+
+    @Value("${app.tag:long-running-tag}")
+    private String tag;
 
     @PostConstruct
     public void main() throws Exception {
@@ -59,12 +63,13 @@ public class LongRunningExample {
         topology.addStateStore(storeBuilder, "PROCESSOR");
         topology.addSink("SINK", outputTopic, Serdes.String().serializer(), Serdes.String().serializer(), "PROCESSOR");
 
-        KafkaStreams kafkaStreams = new KafkaStreams(topology, getProperties());
+        KafkaStreams kafkaStreams = new KafkaStreams(topology, getProperties(tag));
         kafkaStreams.start();
         logger.info("inputTopic: {}", inputTopic);
         logger.info("outputTopic: {}", outputTopic);
         logger.info("executionTime: {}", executionTime);
         logger.info("forwardingInterval: {}", forwardingInterval);
+        logger.info("tag: {}", tag);
         logger.info("kstream started");
 
         Thread.sleep(executionTime * 1000);
@@ -73,11 +78,12 @@ public class LongRunningExample {
         logger.info("Shutting down Long-Running Application  now");
     }
 
-    private static Properties getProperties() {
+    private static Properties getProperties(String tag) {
         Properties props = new Properties();
-        props.put(StreamsConfig.CLIENT_ID_CONFIG, "long-running-client");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "long-running-group");
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "long-running-appid");
+        props.put(StreamsConfig.CLIENT_ID_CONFIG, UNIQUE_ID_PREFIX + tag + "CLIENT_ID");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, UNIQUE_ID_PREFIX + tag + "GROUP_ID");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, UNIQUE_ID_PREFIX + tag + "APP_ID");
+
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "blade1:9092");
         props.put(StreamsConfig.REPLICATION_FACTOR_CONFIG, 1);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
