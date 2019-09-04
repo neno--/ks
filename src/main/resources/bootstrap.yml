@@ -1,0 +1,15 @@
+logging.level.org.springframework.cloud: DEBUG
+spring:
+  application:
+    name: myConsulHelloWorldApp
+  cloud:
+    consul:
+      enabled: true
+      host: localhost
+      port: 8500
+      config:
+        enabled: true
+        prefix: config
+        defaultContext: production
+        profileSeparator: '::'
+        format: YAML
