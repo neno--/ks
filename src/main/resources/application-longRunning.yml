@@ -1,3 +1,6 @@
+app:
+  minPort: 8000
+  maxPort: 9000
 spring:
   cloud:
     stream:

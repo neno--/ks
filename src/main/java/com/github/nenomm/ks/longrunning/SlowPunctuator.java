@@ -15,20 +15,35 @@ public class SlowPunctuator implements Punctuator {
     private ProcessorContext context;
     private int counter = 0;
     private int forwardingInterval;
+    private boolean sleep = false;
+    private int numOfSeconds = 0;
 
     public SlowPunctuator(KeyValueStore<String, String> keyValueStore, ProcessorContext context, int forwardingInterval) {
         this.keyValueStore = keyValueStore;
         this.context = context;
         this.forwardingInterval = forwardingInterval;
+
     }
 
     @Override
     public void punctuate(long timestamp) {
         counter++;
 
+        if (sleep) {
+            logger.info("Putting punctuator to sleep for {} seconds...", numOfSeconds);
+            try {
+                Thread.sleep(numOfSeconds * 1000);
+            } catch (InterruptedException e) {
+                logger.warn("Punctuator thread interrupted!");
+                // ignore
+            }
+            logger.info("Waking up punctuator!");
+            sleep = false;
+        }
+
         if ((counter % this.forwardingInterval) == 0) {
-            logger.info("Executing punctuator step {} - FORWARDING", counter);
-            logger.info("State store has {} items", keyValueStore.approximateNumEntries());
+            //logger.info("Executing punctuator step {} - FORWARDING", counter);
+            //logger.info("State store has {} items", keyValueStore.approximateNumEntries());
 
             KeyValueIterator<String, String> performanceIterator = keyValueStore.all();
 
@@ -38,12 +53,17 @@ public class SlowPunctuator implements Punctuator {
                 String value = keyValue.value;
                 context.forward(key, value);
             }
-            logger.info("Executing punctuator step {} - FORWARDING DONE", counter);
+            //logger.info("Executing punctuator step {} - FORWARDING DONE", counter);
 
             counter = 0;
         } else {
-            logger.info("Executing punctuator step {} - no work", counter);
-            logger.info("State store has {} items", keyValueStore.approximateNumEntries());
+            //logger.info("Executing punctuator step {} - no work", counter);
+            //logger.info("State store has {} items", keyValueStore.approximateNumEntries());
         }
+    }
+
+    public void pause(int sleepDuration) {
+        sleep = true;
+        this.numOfSeconds = sleepDuration;
     }
 }
